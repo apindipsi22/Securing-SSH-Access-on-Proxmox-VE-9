@@ -111,8 +111,8 @@ Make sure they are not commented out (no `#` at the beginning).
 # Authentication:
 
 # Prohibits root login by password, but allows it via SSH key.
-# This is a good compromise for Proxmox cluster management.
-# For maximum security, use 'no'.
+# This is a good compromise for Proxmox cluster management and emergency access.
+# For maximum security (completely block root SSH), use 'no' instead.
 PermitRootLogin prohibit-password
 
 # Ensure that public key authentication is explicitly enabled.
@@ -169,7 +169,7 @@ The `pveadmin` user exists on the system but not yet in Proxmox management. We w
 
 You can now log out of the web interface and reconnect with the `pveadmin` user.
 
-- ✅ Direct SSH access with root password is blocked
+- ✅ Direct SSH access with root password is blocked (key-based access still available for emergency)
 - ✅ Daily SSH access is done via `pveadmin`, a user with standard privileges
 - ✅ Administrative tasks on the command line require `sudo`, ensuring better traceability
 - ✅ Authentication is secured by a cryptographically robust SSH key
