@@ -150,6 +150,21 @@ The `pveadmin` user exists on the system but not yet in Proxmox management. We w
    - Role: `Administrator`
    - Click on `Add`
 
+4. **Enable Two-Factor Authentication (MFA) - Recommended:**
+   - Go to `Datacenter` → `Permissions` → `Two Factor`
+   - Select the user `pveadmin@pam`
+   - Click on `Add` → `TOTP`
+   - Scan the QR code with your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.)
+   - Enter the verification code from your app
+   - Click on `Add`
+   
+   Alternatively, you can configure MFA directly from the user settings:
+   - Go to `Datacenter` → `Permissions` → `Users`
+   - Select `pveadmin@pam`
+   - Click on `TFA` button
+   - Choose your preferred method (TOTP, WebAuthn, or Recovery Keys)
+   - Follow the setup wizard
+
 ## ✅ Final Result
 
 You can now log out of the web interface and reconnect with the `pveadmin` user.
@@ -159,6 +174,7 @@ You can now log out of the web interface and reconnect with the `pveadmin` user.
 - ✅ Administrative tasks on the command line require `sudo`, ensuring better traceability
 - ✅ Authentication is secured by a cryptographically robust SSH key
 - ✅ The new `pveadmin` user has full access to the web interface, equivalent to root
+- ✅ Two-Factor Authentication (MFA) adds an extra layer of security to web interface access
 
 ## 🔒 Best Practices
 
@@ -166,6 +182,8 @@ You can now log out of the web interface and reconnect with the `pveadmin` user.
 - Never share your SSH private key
 - Use ED25519 SSH keys for optimal security: `ssh-keygen -t ed25519 -C "your_email@example.com"`
 - Always test your SSH connections before closing your initial root session
+- Enable MFA/2FA for all administrative accounts
+- Store your MFA recovery codes in a secure location (password manager or encrypted storage)
 
 ## 📝 License
 
