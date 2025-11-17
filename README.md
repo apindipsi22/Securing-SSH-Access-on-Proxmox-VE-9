@@ -1,5 +1,10 @@
 # Securing SSH Access on Proxmox VE 9+
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Proxmox](https://img.shields.io/badge/Proxmox-VE%209%2B-orange)
+![SSH](https://img.shields.io/badge/SSH-Hardening-blue)
+![Security](https://img.shields.io/badge/Security-Best%20Practices-green)
+
 Complete guide to strengthen Proxmox server security by applying the principle of least privilege.
 
 ## 📋 Objective
@@ -184,6 +189,14 @@ You can now log out of the web interface and reconnect with the `pveadmin` user.
 - Always test your SSH connections before closing your initial root session
 - Enable MFA/2FA for all administrative accounts
 - Store your MFA recovery codes in a secure location (password manager or encrypted storage)
+
+## 🤝 Contributing
+
+Found an issue or have a suggestion? Contributions are welcome!
+
+- Open an issue to report bugs or request features
+- Submit a pull request to improve the guide
+- Share your feedback and experience
 
 ## 📝 License
 
